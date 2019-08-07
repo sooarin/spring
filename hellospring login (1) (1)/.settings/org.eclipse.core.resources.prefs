@@ -1,0 +1,5 @@
+eclipse.preferences.version=1
+encoding//java/org/hello/controller/BoardController.java=UTF-8
+encoding//java/org/hello/controller/UserController.java=UTF-8
+encoding//java/org/hello/dao/UserDAOImp.java=UTF-8
+encoding//java/org/hello/service/UserServiceImpl.java=UTF-8

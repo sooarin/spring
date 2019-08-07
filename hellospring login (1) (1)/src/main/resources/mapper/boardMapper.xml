@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ 
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+ 
+<mapper namespace="org.hello.mapper.BoardMapper">
+ 
+ 	<select id="countboard">
+ 		select count(*) from hello_board
+ 	</select>
+    <!-- 게시판 추가하기 -->
+    <insert id="insertBoard">
+        insert into hello_board (b_title,b_writer,b_detail,b_date) values(#{b_title},#{b_writer},#{b_detail},SYSDATE())
+    </insert>
+    
+    <!-- 게시판 리스트보기 -->
+    <select id="listBoard" resultType="org.hello.domain.BoardVO">
+    <![CDATA[
+        select * from hello_board 
+        order by b_no ASC
+    ]]>
+    </select>
+    
+    <!-- 게시판 상세보기 -->
+    <select id="detailBoard" resultType="org.hello.domain.BoardVO">
+            select * from hello_board where b_no = #{b_no}
+    </select>
+ 
+    <!-- 게시판 삭제하기 -->
+    <delete id="deleteBoard">
+        delete from hello_board where b_no = #{b_no}
+    </delete>
+    
+    <!-- 게시판 수정하기 -->
+    <update id="updateBoard">
+        update hello_board set b_title=#{b_title} , b_detail = #{b_detail} where b_no = #{b_no}
+    </update>
+    
+	 <update id="updateViewCnt">
+		update hello_board set b_count = b_count+1 where b_no = #{b_no}
+	 </update>
+	 <!-- 페이징 처리 -->
+	<select id="listAll" resultType="org.hello.domain.BoardVO"
+	parameterType="org.hello.domain.Criteria">
+	select * from hello_board order by b_no desc limit #{rowStart}, #{rowEnd}
+
+	</select>
+	<!-- 게시물 총 갯수 구하기 -->
+	<select id="listCount" resultType="int">
+	<![CDATA[
+	select count(b_no) from hello_board where b_no > 0
+	]]>
+	</select>
+	<select id="listSearch" resultType="org.hello.domain.BoardVO"
+	parameterType="org.hello.domain.SearchCriteria">
+	select * from (select b_no, b_title, b_detail, b_writer, b_date, b_count, row_number() over(order by b_no desc) as rNum from hello_board)
+	<include refid="search"></include>) where rNum between rNum between 0 and 10 order by desc
+	</select>
+	<sql id="search">
+ <if test="searchType != null">
+  <if test="searchType == 't'.toString()">where title like '%' || ${keyword} || '%'</if>
+  <if test="searchType == 'c'.toString()">where content like '%' || ${keyword} || '%'</if>
+  <if test="searchType == 'w'.toString()">where writer like '%' || ${keyword} || '%'</if>
+  <if test="searchType == 'tc'.toString()">where (title like '%' || ${keyword} || '%') or (content like '%' || #{keyword} || '%')</if>
+ </if>
+</sql>
+<select id="countSearch" resultType="int">
+select count(b_no) from hello_board <include refid="search"></include>
+<![CDATA[
+and b_no>0
+]]>
+</select>
+
+</mapper>
+
